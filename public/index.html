@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            text-align: center;
+        }
+
+        #input {
+            font-size: 20px;
+            padding: 10px;
+            margin: 20px;
+            border: 2px solid #333;
+            outline: none;
+        }
+
+        #timer {
+            font-size: 36px;
+            color: red;
+        }
+
+        #word {
+            font-size: 36px;
+            opacity: 0.6;
+        }
+
+        .correct-letter {
+            color: green;
+        }
+
+        #reset-button {
+            display: none;
+        }
+
+        #reset-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Typing Speed Test</h1>
+    <div id="result"></div>
+    <div id="word"></div>
+    <input type="text" id="input" autocomplete="off" spellcheck="false" autofocus>
+    <div id="timer"><span id="countdown">10</span></div>
+    <div id="reset-container">
+        <button id="reset-button">Reset</button>
+    </div>
+    <script>
+        const words = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "doughnut", "kiwi", "lemon" ,"carrot", "beetroot", "mario", "crash"];
+        let currentWordIndex = 0;
+        let startTime = 0;
+        let gameRunning = false;
+        let countdownTimer;
+        let currentTyped = "";
+        let gameReset = true;
+
+        const input = document.getElementById("input");
+        const result = document.getElementById("result");
+        const resetButton = document.getElementById("reset-button");
+        const countdownSpan = document.getElementById("countdown");
+        const timerDiv = document.getElementById("timer");
+        const wordDiv = document.getElementById("word");
+
+        function startGame() {
+            currentWordIndex = 0;
+            result.innerHTML = "";
+            input.value = "";
+            input.focus();
+            currentTyped = "";
+            showNextWord();
+            gameRunning = false;
+            updateCountdown(10);
+            timerDiv.style.color = "black";
+            clearInterval(countdownTimer);
+            resetButton.style.display = "none";
+            gameReset = true; // Reset the gameReset flag
+        }
+
+        function showNextWord() {
+            if (currentWordIndex < words.length) {
+                const word = words[currentWordIndex];
+                wordDiv.textContent = word;
+                wordDiv.style.opacity = 0.6;
+                input.value = "";
+                input.focus();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            if (gameRunning) {
+                clearInterval(countdownTimer);
+                const endTime = new Date().getTime();
+                const elapsedTime = (endTime - startTime) / 1000;
+                const wordsTyped = currentWordIndex;
+                const wpm = Math.round((wordsTyped / elapsedTime) * 60);
+                result.innerHTML = `Words per minute (WPM): ${wpm}`;
+                wordDiv.textContent = "";
+                input.value = "";
+                gameRunning = false;
+                resetButton.style.display = "block";
+                gameReset = false; // Set the gameReset flag to false
+            }
+        }
+
+        function updateCountdown(secondsLeft) {
+            countdownSpan.textContent = secondsLeft;
+            if (secondsLeft <= 0) {
+                endGame();
+            }
+        }
+
+        input.addEventListener("input", function () {
+            if (!gameRunning && gameReset) { // Check if the game is reset before starting
+                gameRunning = true;
+                startTime = new Date().getTime();
+                timerDiv.style.color = "green";
+                countdownTimer = setInterval(function () {
+                    updateCountdown(Math.max(0, 10 - Math.floor((new Date().getTime() - startTime) / 1000)));
+                }, 1000);
+            }
+
+            const word = words[currentWordIndex];
+            const typed = input.value;
+            let highlightedWord = '';
+            for (let i = 0; i < word.length; i++) {
+                if (typed[i] === word[i]) {
+                    highlightedWord += `<span class="correct-letter">${word[i]}</span>`;
+                } else {
+                    highlightedWord += word[i];
+                }
+            }
+            currentTyped = typed;
+            wordDiv.innerHTML = highlightedWord;
+            wordDiv.style.opacity = 1;
+
+            if (typed === word) {
+                currentWordIndex++;
+                input.value = "";
+                showNextWord();
+            }
+        });
+
+        resetButton.addEventListener("click", function () {
+            startGame();
+        });
+
+        startGame();
+    </script>
+</body>
+
+</html>
