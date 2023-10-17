@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: monospace;
+        }
+
+        canvas {
+            border: 2px solid black;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+
+            margin-left: 20px;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            margin-left: 20px;
+        }
+
+        button {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #myCanvas {
+            max-width: 700px;
+            width: 100%;
+            height: auto;
+            border: 1px solid black;
+        }
+
+        /* Styles for drawing elements */
+        canvas,
+        .button-container,
+        .slider-container {
+            display: block;
+        }
+
+        /* Styles for the message */
+        #message {
+            display: none;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        @media (max-width: 1200px) {
+
+            /* Hide drawing elements when the screen width is below 900px */
+            canvas,
+            .button-container,
+            .slider-container {
+                display: none;
+            }
+
+            /* Display the message when the screen width is below 900px */
+            #message {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="message">
+        <p>This drawing app is intended for larger screens.</p>
+    </div>
+
+
+    <canvas id="myCanvas"></canvas>
+    <div class="button-container">
+        <button id="colorRed">Red</button>
+        <button id="colorBlue">Blue</button>
+        <button id="colorGreen">Green</button>
+        <button id="colorBlack">Black</button>
+        <button id="eraser">Eraser</button>
+    </div>
+    <div class="slider-container">
+        <input type="range" id="lineThickness" min="1" max="20" value="5">
+    </div>
+
+    <script>
+        const canvas = document.getElementById("myCanvas");
+        const context = canvas.getContext("2d");
+        let drawing = false;
+        let isEraser = false;
+        let currentColor = "blue";
+        let lineThickness = 5;
+
+        const colorButtons = document.querySelectorAll("button[id^='color']");
+        const eraserButton = document.getElementById("eraser");
+        const lineThicknessSlider = document.getElementById("lineThickness");
+
+        function setColor(color) {
+            currentColor = color;
+            context.strokeStyle = color;
+        }
+
+        function setEraser() {
+            isEraser = true;
+            context.strokeStyle = "white";
+        }
+
+        function setLineThickness(thickness) {
+            lineThickness = thickness;
+            context.lineWidth = thickness;
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth > 700 ? 700 : window.innerWidth;
+            canvas.height = canvas.width * 0.75;
+        }
+
+        canvas.addEventListener("mousedown", () => {
+            drawing = true;
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            drawing = false;
+            context.beginPath();
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+            if (!drawing) return;
+            if (isEraser) {
+                context.globalCompositeOperation = "destination-out";
+            } else {
+                context.globalCompositeOperation = "source-over";
+            }
+
+            context.lineCap = "round";
+            context.lineTo(
+                event.clientX - canvas.getBoundingClientRect().left,
+                event.clientY - canvas.getBoundingClientRect().top
+            );
+            context.stroke();
+            context.beginPath();
+            context.moveTo(
+                event.clientX - canvas.getBoundingClientRect().left,
+                event.clientY - canvas.getBoundingClientRect().top
+            );
+        });
+
+        canvas.addEventListener("mouseout", () => {
+            drawing = false;
+            context.beginPath();
+        });
+
+        colorButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                setColor(button.id.replace("color", "").toLowerCase());
+                isEraser = false;
+            });
+        });
+
+        eraserButton.addEventListener("click", () => {
+            setEraser();
+        });
+
+        lineThicknessSlider.addEventListener("input", () => {
+            setLineThickness(lineThicknessSlider.value);
+        });
+
+        // Initial canvas resizing
+        resizeCanvas();
+
+        // Listen for window resize events to update canvas size
+        window.addEventListener("resize", resizeCanvas);
+    </script>
+</body>
+
+</html>
+
+</html>
