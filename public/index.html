@@ -6,9 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing Speed Test</title>
     <style>
-        body {
-            font-family: monospace;
+           body {
             text-align: center;
+            font-family: monospace;
+            background-color: #dcc13cc9;
+            animation: morphBackground 30s infinite forwards;
+            user-select: none;
+        }
+
+        @keyframes morphBackground {
+            0% {
+                background-color: #95917dc9;
+            }
+
+            25% {
+                background-color: #accadf;
+            }
+
+            50% {
+                background-color: #6af847b7;
+            }
+
+            75% {
+                background-color: #3498db;
+            }
+
+            100% {
+                background-color: #dcc13cc9;
+            }
         }
 
         #input {
